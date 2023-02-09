@@ -11,7 +11,7 @@
 }}
 
 select 
-    model_name || '|' || column_name || '|' || check_strategy as id,
+    fully_qualified_table_name || '|' || column_name || '|' || overdue_strategy as id,
     *
 from {{ ref('overdue') }}
 
