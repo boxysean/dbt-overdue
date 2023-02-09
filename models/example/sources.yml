@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: analytics
+    database: analytics
+    schema: dbt_smcintyre
+    tables:
+    - name: pet_sales

@@ -1,1 +1,1 @@
-select * from {{ ref('pet_sales') }}
+select * from {{ source('analytics', 'pet_sales') }}
