@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: fct_pet_sales
+    columns:
+    - name: id
+    - name: sold_at
+      meta:
+        daily_overdue_check: 9
+        overdue_freshness_check: 1
+    - name: pet_name
