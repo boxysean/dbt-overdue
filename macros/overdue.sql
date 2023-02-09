@@ -10,8 +10,8 @@ select
     (select {{ dbt_date.now('UTC') }}) as checked_at,
     {# (select max(to_timestamp({{ column_name }})) from {{ ref(model_name) }}) as high_watermark, #}
     (select max(to_timestamp({{ column_name }})) from {{ fully_qualified_table_name }}) as high_watermark,
-    {{ dbt.dateadd('hours', data_freshness_hours, 'checked_at') }} as next_overdue_at,
-    {{ datediff('high_watermark', 'next_overdue_at', 'minutes') }} as overdue_minutes,
+    {{ dbt.dateadd('hours', data_freshness_hours, 'high_watermark') }} as next_overdue_at,
+    {{ datediff('next_overdue_at', 'high_watermark', 'minutes') }} as overdue_minutes,
     overdue_minutes > 0 as is_overdue
 
 {% endmacro %}
@@ -27,7 +27,15 @@ select
     (select {{ dbt_date.now('UTC') }}) as checked_at,
     {# (select max(to_timestamp({{ column_name }})) from {{ ref(model_name) }}) as high_watermark, #}
     (select max(to_timestamp({{ column_name }})) from {{ fully_qualified_table_name }}) as high_watermark,
-    {{ dbt.dateadd('hours', daily_overdue_hour, date_trunc('day', 'high_watermark')) }} as next_overdue_at,
+    {{ dbt.dateadd(
+        'days',
+        "case when " ~ date_trunc('day', 'high_watermark') ~ " = " ~ dbt_date.today() ~ " then 1 else 0 end",
+        dbt.dateadd(
+            'hours',
+            daily_overdue_hour,
+            date_trunc('day', 'high_watermark')
+        )
+    ) }} as next_overdue_at,
     {{ datediff('next_overdue_at', 'checked_at', 'minutes') }} as overdue_minutes,
     overdue_minutes > 0 as is_overdue
 
